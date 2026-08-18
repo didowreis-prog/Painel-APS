@@ -52,7 +52,6 @@
             transform: translateY(0);
         }
 
-        /* NAVBAR / HEADER FIXO COM HAMBÚRGUER */
         .glass-nav {
             background: rgba(6, 26, 46, 0.9);
             backdrop-filter: blur(12px);
@@ -117,7 +116,6 @@
             color: white;
         }
 
-        /* Botão do Menu Hambúrguer */
         .hamburger-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -142,7 +140,6 @@
             font-size: 26px;
         }
 
-        /* DRAWER / MENU LATERAL DESLIZANTE */
         .drawer-overlay {
             position: fixed;
             inset: 0;
@@ -333,7 +330,6 @@
             flex-wrap: wrap;
         }
 
-        /* BOTÕES GERAIS */
         .cta-btn {
             display: inline-flex;
             align-items: center;
@@ -481,7 +477,6 @@
             .story-highlight { font-size: 1.8rem; }
         }
 
-        /* SEÇÃO BENTO GRID */
         .section {
             padding: 4rem 2rem 8rem 2rem;
             max-width: 1200px;
@@ -658,7 +653,6 @@
             color: var(--text-light);
         }
 
-        /* ESPAÇO PARA FOTO / SCREENSHOT NO PULO DO GATO */
         .pdg-visual {
             display: flex;
             justify-content: center;
@@ -695,7 +689,6 @@
             .pdg-visual { margin-top: 3rem; }
         }
 
-        /* SEÇÃO DE SEGURANÇA / LGPD (POSICIONADA APÓS O PULO DO GATO) */
         .security-section {
             background: #041424;
             color: white;
@@ -877,7 +870,6 @@
             padding-top: 1rem;
         }
 
-        /* SEÇÃO 1: DOWNLOAD PRINCIPAL CENTRALIZADO */
         .download-single-section {
             padding: 6rem 2rem 5rem 2rem;
             background-color: var(--bg-color);
@@ -1124,12 +1116,11 @@
     </style>
 </head>
 <body>
-
-    <!-- NAVBAR FIXA COM HAMBÚRGUER (DESKTOP & MOBILE) -->
+    
     <nav class="glass-nav" id="navbar">
         <div class="nav-container">
             <a href="#" class="nav-logo">
-                <img src="1000260874.png" alt="Logotipo Painel APS">
+                <img src=logo.png" alt="Logotipo Painel APS">
             </a>
             
             <div class="nav-right">
@@ -1145,7 +1136,6 @@
         </div>
     </nav>
 
-    <!-- DRAWER / MENU LATERAL DESLIZANTE -->
     <div class="drawer-overlay" id="drawerOverlay">
         <div class="drawer-panel" id="drawerPanel">
             <div class="drawer-header">
@@ -1228,7 +1218,6 @@
         </div>
     </header>
 
-    <!-- STORYTELLING / MANIFESTO -->
     <section class="story-section" id="proposito">
         <div class="story-container hidden-element">
             <div class="quote-icon">
@@ -1241,7 +1230,6 @@
         </div>
     </section>
 
-    <!-- FUNCIONALIDADES BENTO GRID -->
     <section id="solucao" class="section">
         <div class="section-header hidden-element">
             <h2>Análise Completa. Zero Complicação.</h2>
@@ -1275,7 +1263,6 @@
         </div>
     </section>
 
-    <!-- O PULO DO GATO -->
     <section class="pdg-section" id="pdg-section">
         <div class="pdg-container">
             <div class="pdg-content hidden-element">
@@ -1300,16 +1287,14 @@
                 </div>
             </div>
             
-            <!-- ESPAÇO PARA FOTO / SCREENSHOT DO SISTEMA -->
             <div class="pdg-visual hidden-element" style="transition-delay: 200ms;">
                 <div class="pdg-image-frame">
-                    <img src="screenshot-pulo-do-gato.png" alt="Demonstração do Cruzamento Multidimensional no Painel APS">
+                    <img src="exemplo.png" alt="Demonstração do Cruzamento Multidimensional no Painel APS">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SEGURANÇA / LGPD (APÓS O PULO DO GATO) -->
     <section class="security-section" id="seguranca">
         <div class="security-container">
             <div class="security-text hidden-element">
@@ -1343,7 +1328,6 @@
                 </ul>
             </div>
 
-            <!-- CTA animado -->
             <div class="vault-visual hidden-element">
                 <div class="vault-circle">
                     <a href="#download-section" class="vault-cta">
@@ -1355,7 +1339,6 @@
         </div>
     </section>
 
-    <!-- FAQ SECTION -->
     <section class="faq-section" id="faq-section">
         <div class="section-header hidden-element" style="margin-bottom: 3rem;">
             <h2>Dúvidas Frequentes</h2>
@@ -1382,7 +1365,6 @@
         </details>
     </section>
 
-    <!-- SEÇÃO 1: DOWNLOAD PRINCIPAL CENTRALIZADO -->
     <section class="download-single-section" id="download-section">
         <div class="download-center-card hidden-element">
             <div class="main-icon">
@@ -1425,7 +1407,6 @@
                 </p>
             </div>
 
-            <!-- Grid de Módulos V2 / Satélites -->
             <div class="roadmap-grid">
                 <div class="roadmap-card hidden-element">
                     <div class="roadmap-card-header">
@@ -1484,7 +1465,6 @@
                 </div>
             </div>
 
-            <!-- CTA Central de Contribuição -->
             <div class="support-cta-box hidden-element">
                 <h3>Faça Parte Desta Construção</h3>
                 <p>Se o Painel APS otimizou o trabalho da sua equipe, contribua para acelerar a entrega das novas ferramentas para toda a rede pública.</p>
@@ -1506,7 +1486,6 @@
         </p>
     </footer>
 
-    <!-- SCRIPT PARA INTERAÇÃO DO MENU HAMBÚRGUER (DESKTOP & MOBILE) E SCROLL -->
     <script>
         const openDrawerBtn = document.getElementById('openDrawerBtn');
         const closeDrawerBtn = document.getElementById('closeDrawerBtn');
