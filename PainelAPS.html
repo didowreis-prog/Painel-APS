@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel APS - Monitoramento de Indicadores APS/SUS</title>
+    
+    <!-- Fontes e Ícones do Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    
+    <style>
+        :root {
+            --primary: #25b9c0; 
+            --primary-dark: #128288;
+            --secondary: #00d2ff; 
+            --dark: #061a2e; 
+            --text-main: #334155;
+            --text-light: #64748b;
+            --bg-color: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            padding-top: 80px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--dark);
+        }
+
+        /* ANIMAÇÕES GERAIS */
+        .hidden-element {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .show-element {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* NAVBAR / HEADER FIXO COM HAMBÚRGUER */
+        .glass-nav {
+            background: rgba(6, 26, 46, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: padding 0.3s ease;
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .nav-logo img {
+            height: 40px; 
+            width: auto;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .btn-nav-apoiar {
+            background: rgba(37, 185, 192, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav-apoiar:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Botão do Menu Hambúrguer */
+        .hamburger-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-btn:hover {
+            background: rgba(37, 185, 192, 0.2);
+            border-color: var(--primary);
+            color: var(--secondary);
+        }
+
+        .hamburger-btn .material-symbols-rounded {
+            font-size: 26px;
+        }
+
+        /* DRAWER / MENU LATERAL DESLIZANTE */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 16, 30, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 380px;
+            height: 100vh;
+            background: #061a2e;
+            border-left: 1px solid rgba(37, 185, 192, 0.2);
+            box-shadow: -15px 0 50px rgba(0, 0, 0, 0.8);
+            z-index: 2001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .drawer-overlay.active .drawer-panel {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .drawer-close-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .drawer-close-btn:hover {
+            color: white;
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #f87171;
+        }
+
+        .drawer-nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .drawer-nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 1rem 1.2rem;
+            border-radius: 14px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 1.05rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .drawer-nav-item a:hover {
+            background: rgba(37, 185, 192, 0.1);
+            border-color: rgba(37, 185, 192, 0.3);
+            color: var(--secondary);
+            transform: translateX(4px);
+        }
+
+        .drawer-nav-item a .material-symbols-rounded {
+            color: var(--primary);
+            font-size: 22px;
+        }
+
+        .drawer-footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem 5rem 2rem;
+            background: linear-gradient(-45deg, #061a2e, #0a2540, #041424, #061a2e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 45vw;
+            height: 45vw;
+            background: rgba(37, 185, 192, 0.15);
+            filter: blur(120px);
+            border-radius: 50%;
+            top: -10%;
+            left: -10%;
+            animation: float 10s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(30px) scale(1.05); }
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+            color: white;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            color: white;
+            font-size: clamp(2.2rem, 4.5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* BOTÕES GERAIS */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--primary);
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(37, 185, 192, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 25px rgba(37, 185, 192, 0.4);
+            background: var(--secondary);
+            color: var(--dark);
+        }
+
+        .cta-btn:hover::after {
+            left: 100%;
+        }
+
+        .btn-outline-light {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: transparent;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary);
+            padding: 1.1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: rgba(37, 185, 192, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* SEÇÃO STORYTELLING / MANIFESTO */
+        .story-section {
+            padding: 8rem 2rem 4rem 2rem;
+            background-color: var(--bg-color);
+            text-align: center;
+            position: relative;
+        }
+
+        .story-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 4rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        .quote-icon {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(37, 185, 192, 0.3);
+        }
+
+        .quote-icon .material-symbols-rounded {
+            font-size: 28px;
+        }
+
+        .story-highlight {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            font-weight: 800;
+        }
+
+        .story-highlight span {
+            color: var(--primary);
+        }
+
+        .story-body {
+            font-size: 1.15rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .story-container { padding: 3rem 1.5rem; }
+            .story-highlight { font-size: 1.8rem; }
+        }
+
+        /* SEÇÃO BENTO GRID */
+        .section {
+            padding: 4rem 2rem 8rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2rem;
+        }
+
+        .bento-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            transform: translateY(-5px);
+        }
+
+        .bento-card .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            background: rgba(37, 185, 192, 0.1);
+            color: var(--primary);
+        }
+
+        .bento-card .icon-wrapper .material-symbols-rounded {
+            font-size: 32px;
+        }
+
+        .bento-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .bento-card p {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .card-large { grid-column: span 8; }
+        .card-small { grid-column: span 4; }
+        @media (max-width: 900px) {
+            .card-large, .card-small { grid-column: span 12; }
+        }
+
+        .card-large.first-large::after {
+            content: 'e-SUS ➜ Painel APS ➜ Ação';
+            position: absolute;
+            bottom: -20px;
+            right: -10px;
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: rgba(37, 185, 192, 0.04);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* SEÇÃO O PULO DO GATO */
+        .pdg-section {
+            background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+            padding: 8rem 2rem;
+            border-top: 1px solid rgba(37, 185, 192, 0.1);
+            border-bottom: 1px solid rgba(37, 185, 192, 0.1);
+            overflow: hidden;
+        }
+
+        .pdg-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .pdg-badge {
+            background: rgba(37, 185, 192, 0.15);
+            color: var(--primary-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .pdg-content h2 {
+            font-size: 3.2rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .pdg-content h2 span {
+            color: var(--primary);
+        }
+
+        .pdg-content p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .pdg-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+
+        .pdg-feature:hover {
+            transform: translateY(-5px);
+        }
+
+        .pdg-feature .material-symbols-rounded {
+            color: white;
+            font-size: 28px;
+            background: var(--primary);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(37, 185, 192, 0.3);
+        }
+
+        .pdg-feature h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .pdg-feature p {
+            font-size: 1rem;
+            margin-bottom: 0;
+            color: var(--text-light);
+        }
+
+        /* ESPAÇO PARA FOTO / SCREENSHOT NO PULO DO GATO */
+        .pdg-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .pdg-image-frame {
+            width: 100%;
+            max-width: 540px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(37, 185, 192, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 30px rgba(37, 185, 192, 0.1);
+            background: #061a2e;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .pdg-image-frame:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2), 0 0 40px rgba(37, 185, 192, 0.2);
+        }
+
+        .pdg-image-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        @media (max-width: 900px) {
+            .pdg-container { grid-template-columns: 1fr; }
+            .pdg-content h2 { font-size: 2.5rem; }
+            .pdg-visual { margin-top: 3rem; }
+        }
+
+        /* SEÇÃO DE SEGURANÇA / LGPD (POSICIONADA APÓS O PULO DO GATO) */
+        .security-section {
+            background: #041424;
+            color: white;
+            padding: 8rem 2rem;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .security-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(37, 185, 192, 0.08) 0%, transparent 70%);
+        }
+
+        .security-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .security-text {
+            flex: 1;
+        }
+
+        .security-text h2 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .security-text h2 span {
+            color: var(--primary);
+        }
+
+        .security-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .security-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .security-list li:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(10px);
+        }
+
+        .security-list .material-symbols-rounded {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .vault-visual {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vault-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 4px dashed rgba(37, 185, 192, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: spin 20s linear infinite;
+            position: relative;
+        }
+
+        .vault-cta {
+            width: 210px;
+            height: 210px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            box-shadow: 0 0 50px rgba(37, 185, 192, 0.4);
+            animation: reverse-spin 20s linear infinite, pulse 2s ease-in-out infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .vault-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 80px rgba(37, 185, 192, 0.8);
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            animation: reverse-spin 20s linear infinite; 
+            color: var(--dark);
+        }
+
+        .vault-cta .material-symbols-rounded {
+            font-size: 54px;
+            margin-bottom: 8px;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes reverse-spin { 100% { transform: rotate(-360deg); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.05) rotate(0deg); } }
+
+        /* SEÇÃO FAQ */
+        .faq-section {
+            padding: 6rem 2rem;
+            background-color: var(--bg-color);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            overflow: hidden;
+        }
+
+        .faq-item summary {
+            padding: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq-item summary::after {
+            content: 'add';
+            font-family: 'Material Symbols Rounded';
+            color: var(--primary);
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .faq-item[open] summary::after {
+            content: 'remove';
+            transform: rotate(180deg);
+        }
+
+        .faq-item p {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin: 0;
+            border-top: 1px solid rgba(0,0,0,0.03);
+            padding-top: 1rem;
+        }
+
+        /* SEÇÃO 1: DOWNLOAD PRINCIPAL CENTRALIZADO */
+        .download-single-section {
+            padding: 6rem 2rem 5rem 2rem;
+            background-color: var(--bg-color);
+        }
+
+        .download-center-card {
+            max-width: 860px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 28px;
+            padding: 4rem 3rem;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.04);
+            text-align: center;
+            position: relative;
+        }
+
+        .download-center-card .main-icon {
+            font-size: 52px;
+            color: var(--primary);
+            background: rgba(37, 185, 192, 0.1);
+            padding: 16px;
+            border-radius: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .download-center-card h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .download-center-card p {
+            font-size: 1.15rem;
+            color: var(--text-light);
+            max-width: 650px;
+            margin: 0 auto 2rem auto;
+            line-height: 1.7;
+        }
+
+        .download-center-actions {
+            display: flex;
+            gap: 1.2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .download-features-pills {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .download-features-pills span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .download-features-pills .material-symbols-rounded {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* SEÇÃO 2: APOIO E ECOSSISTEMA V.2 */
+        .support-dedicated-section {
+            padding: 6rem 2rem 8rem 2rem;
+            background: var(--dark);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .support-dedicated-section::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 185, 192, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .support-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .support-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem auto;
+        }
+
+        .support-header .badge {
+            background: rgba(37, 185, 192, 0.15);
+            color: var(--secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: inline-block;
+            margin-bottom: 1.2rem;
+        }
+
+        .support-header h2 {
+            color: white;
+            font-size: 2.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .support-header p {
+            color: #cbd5e1;
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .roadmap-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .roadmap-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(37, 185, 192, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .roadmap-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .roadmap-card-header .icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(37, 185, 192, 0.15);
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .roadmap-card-header .icon-box .material-symbols-rounded {
+            font-size: 24px;
+        }
+
+        .roadmap-card-header h3 {
+            font-size: 1.15rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .roadmap-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .support-cta-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(37, 185, 192, 0.3);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .support-cta-box h3 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .support-cta-box p {
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .security-container { flex-direction: column; }
+            .vault-visual { margin-top: 3rem; }
+            .security-text h2 { font-size: 2.2rem; }
+            .download-center-card { padding: 3rem 1.5rem; }
+        }
+
+        footer {
+            background: #020c1b;
+            color: #64748b;
+            text-align: center;
+            padding: 3rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        footer a {
+            color: var(--secondary);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR FIXA COM HAMBÚRGUER (DESKTOP & MOBILE) -->
+    <nav class="glass-nav" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <img src="1000260874.png" alt="Logotipo Painel APS">
+            </a>
+            
+            <div class="nav-right">
+                <a href="#apoiar" class="btn-nav-apoiar">
+                    <span class="material-symbols-rounded" style="font-size: 18px;">volunteer_activism</span>
+                    Apoiar o Projeto
+                </a>
+                
+                <button class="hamburger-btn" id="openDrawerBtn" aria-label="Abrir menu de navegação">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DRAWER / MENU LATERAL DESLIZANTE -->
+    <div class="drawer-overlay" id="drawerOverlay">
+        <div class="drawer-panel" id="drawerPanel">
+            <div class="drawer-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-rounded" style="color: var(--primary); font-size: 24px;">menu_open</span>
+                    <span style="font-family: 'Outfit'; font-weight: 800; font-size: 1.2rem; color: white;">Navegação</span>
+                </div>
+                <button class="drawer-close-btn" id="closeDrawerBtn" aria-label="Fechar menu">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <ul class="drawer-nav-list">
+                <li class="drawer-nav-item">
+                    <a href="#proposito" class="drawer-link">
+                        <span class="material-symbols-rounded">verified</span>
+                        Propósito & Origem
+                    </a>
+                </li>
+                <li class="drawer-nav-item">
+                    <a href="#solucao" class="drawer-link">
+                        <span class="material-symbols-rounded">tune</span>
+                        Especificações Técnicas
+                    </a>
+                </li>
+                <li class="drawer-nav-item">
+                    <a href="#pdg-section" class="drawer-link">
+                        <span class="material-symbols-rounded">hub</span>
+                        O Pulo do Gato
+                    </a>
+                </li>
+                <li class="drawer-nav-item">
+                    <a href="#seguranca" class="drawer-link">
+                        <span class="material-symbols-rounded">shield_lock</span>
+                        Segurança & Offline
+                    </a>
+                </li>
+                <li class="drawer-nav-item">
+                    <a href="#faq-section" class="drawer-link">
+                        <span class="material-symbols-rounded">help</span>
+                        Dúvidas Frequentes
+                    </a>
+                </li>
+                <li class="drawer-nav-item">
+                    <a href="#download-section" class="drawer-link">
+                        <span class="material-symbols-rounded">cloud_download</span>
+                        Baixar Sistema
+                    </a>
+                </li>
+                <li class="drawer-nav-item">
+                    <a href="#apoiar" class="drawer-link" style="border-color: rgba(37, 185, 192, 0.3); background: rgba(37, 185, 192, 0.08); color: var(--secondary);">
+                        <span class="material-symbols-rounded" style="color: var(--secondary);">volunteer_activism</span>
+                        Apoiar o Projeto (V.2)
+                    </a>
+                </li>
+            </ul>
+
+            <div class="drawer-footer">
+                <p><strong>Painel APS</strong> &copy; 2026</p>
+                <p style="margin-top: 4px;">Criado por profissionais do SUS para profissionais do SUS.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <div class="hero-content hidden-element">
+            <h1>Transforme dados do PEC/APS em <span>decisões estratégicas.</span></h1>
+            <p>Monitore indicadores, identifique gargalos e acompanhe o desempenho da sua equipe em um único painel.</p>
+            
+            <div class="hero-actions">
+                <a href="#download-section" class="cta-btn">
+                    <span class="material-symbols-rounded">download</span>
+                    Baixar Gratuitamente
+                </a>
+                <a href="#solucao" class="btn-outline-light">
+                    Como funciona
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- STORYTELLING / MANIFESTO -->
+    <section class="story-section" id="proposito">
+        <div class="story-container hidden-element">
+            <div class="quote-icon">
+                <span class="material-symbols-rounded">format_quote</span>
+            </div>
+            <h2 class="story-highlight">Criado por profissionais de saúde da Saúde da Família para <span>profissionais de saúde da Saúde da Família.</span></h2>
+            <p class="story-body">
+                O Painel APS possibilita a análise das principais linhas de cuidado do SUS em uma única interface. Pensado para evitar todas as dificuldades de uso mais frequentes, o Painel APS é a única ferramenta de análise estratégica de dados disponível gratuitamente para todos os profissionais de saúde.
+            </p>
+        </div>
+    </section>
+
+    <!-- FUNCIONALIDADES BENTO GRID -->
+    <section id="solucao" class="section">
+        <div class="section-header hidden-element">
+            <h2>Análise Completa. Zero Complicação.</h2>
+            <p>Uma análise de todas as linhas de cuidado: Gestação e Puerpério, Puericultura, Saúde da Mulher, Saúde do Idoso, Hipertensão e Diabetes em uma única interface.</p>
+        </div>
+
+        <div class="bento-grid">
+            <div class="bento-card card-large first-large hidden-element">
+                <div class="icon-wrapper"><span class="material-symbols-rounded">bolt</span></div>
+                <h3>Automação Imediata dos Relatórios</h3>
+                <p>O Painel APS avalia os indicadores a partir da importação direta dos relatórios oficiais do SUS. Em questão de segundos e com apenas três cliques do mouse, toda a análise consolidada está pronta para intervenção da equipe.</p>
+            </div>
+            
+            <div class="bento-card card-small hidden-element" style="transition-delay: 100ms;">
+                <div class="icon-wrapper"><span class="material-symbols-rounded">sync</span></div>
+                <h3>Motor Adaptável</h3>
+                <p>Sistema pronto para adaptar-se a mudanças nos indicadores monitorados pelo Ministério da Saúde e nos relatórios do PEC.</p>
+            </div>
+
+            <div class="bento-card card-small hidden-element" style="transition-delay: 200ms;">
+                <div class="icon-wrapper"><span class="material-symbols-rounded">map</span></div>
+                <h3>Mapeamento de Território</h3>
+                <p>Relatórios personalizados de pendências categorizados por ACS e microárea, direcionando cirurgicamente a busca ativa.</p>
+            </div>
+
+            <div class="bento-card card-large hidden-element" style="transition-delay: 300ms;">
+                <div class="icon-wrapper"><span class="material-symbols-rounded">monitoring</span></div>
+                <h3>Evolução Flexível e Alertas</h3>
+                <p>Suporte completo para a comparação de resultados ao longo do tempo, com alertas inteligentes sobre a população adscrita. <strong>Evolução flexível:</strong> a decisão de acompanhar a evolução dos dados por dias, semanas ou meses é do usuário.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- O PULO DO GATO -->
+    <section class="pdg-section" id="pdg-section">
+        <div class="pdg-container">
+            <div class="pdg-content hidden-element">
+                <span class="pdg-badge">O Diferencial Estratégico</span>
+                <h2>O Pulo do Gato:<br><span>Cruzamento Multidimensional</span></h2>
+                <p>Não avaliamos apenas agravos isolados. O motor exclusivo do Painel APS avalia pacientes que necessitam de atenção em múltiplas dimensões simultaneamente.</p>
+                
+                <div class="pdg-feature">
+                    <span class="material-symbols-rounded">my_location</span>
+                    <div>
+                        <h4>Identificação de Acúmulo</h4>
+                        <p>Destaca precisamente os indivíduos com a maior concentração de procedimentos pendentes.</p>
+                    </div>
+                </div>
+                
+                <div class="pdg-feature">
+                    <span class="material-symbols-rounded">trending_up</span>
+                    <div>
+                        <h4>Estimativa de Impacto</h4>
+                        <p>Classifica os pacientes para estimar o impacto real que as atividades não realizadas terão na pontuação final do indicador.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ESPAÇO PARA FOTO / SCREENSHOT DO SISTEMA -->
+            <div class="pdg-visual hidden-element" style="transition-delay: 200ms;">
+                <div class="pdg-image-frame">
+                    <img src="screenshot-pulo-do-gato.png" alt="Demonstração do Cruzamento Multidimensional no Painel APS">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEGURANÇA / LGPD (APÓS O PULO DO GATO) -->
+    <section class="security-section" id="seguranca">
+        <div class="security-container">
+            <div class="security-text hidden-element">
+                <h2>Privacidade e Operação <span>100% Offline</span></h2>
+                <p style="color: #94a3b8; font-size: 1.2rem; margin-bottom: 2rem;">
+                    Segurança garantida a partir da arquitetura de base. O ambiente foi desenhado para proteger informações sensíveis da população, operando de forma completamente descentralizada.
+                </p>
+                
+                <ul class="security-list">
+                    <li>
+                        <span class="material-symbols-rounded">wifi_off</span>
+                        <div>
+                            <strong style="font-size: 1.2rem; display: block; margin-bottom: 0.3rem;">Sem Envio pela Internet</strong>
+                            <span style="color: #94a3b8;">O sistema processa todos os relatórios estritamente no computador do profissional. Não existe comunicação com servidores externos.</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="material-symbols-rounded">security</span>
+                        <div>
+                            <strong style="font-size: 1.2rem; display: block; margin-bottom: 0.3rem;">Sigilo Absoluto dos Dados</strong>
+                            <span style="color: #94a3b8;">A sua base de dados de pacientes e o acompanhamento territorial permanecem protegidos e isolados dentro do ambiente da Unidade de Saúde.</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="material-symbols-rounded">tune</span>
+                        <div>
+                            <strong style="font-size: 1.2rem; display: block; margin-bottom: 0.3rem;">Autonomia de Indicadores</strong>
+                            <span style="color: #94a3b8;">A arquitetura local não só protege, como também oferece suporte para a inclusão de indicadores próprios estabelecidos pela equipe.</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- CTA animado -->
+            <div class="vault-visual hidden-element">
+                <div class="vault-circle">
+                    <a href="#download-section" class="vault-cta">
+                        <span class="material-symbols-rounded">rocket_launch</span>
+                        Garantir Acesso
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="faq-section" id="faq-section">
+        <div class="section-header hidden-element" style="margin-bottom: 3rem;">
+            <h2>Dúvidas Frequentes</h2>
+        </div>
+        
+        <details class="faq-item hidden-element">
+            <summary>Funciona no computador da unidade básica?</summary>
+            <p>Sim. O Painel APS foi otimizado para rodar de forma leve e rápida, mesmo em computadores mais antigos frequentemente encontrados em Unidades Básicas de Saúde, sem exigir a instalação de bancos de dados complexos.</p>
+        </details>
+        
+        <details class="faq-item hidden-element">
+            <summary>Precisa de internet para processar os dados?</summary>
+            <p>Não. Todo o cruzamento de informações e geração de relatórios ocorre 100% offline no seu próprio computador, garantindo que o fluxo de trabalho não seja interrompido por quedas de conexão.</p>
+        </details>
+        
+        <details class="faq-item hidden-element">
+            <summary>É seguro lidar com os dados dos pacientes?</summary>
+            <p>Completamente. Como o sistema não envia dados para a nuvem ou servidores externos, o sigilo do Prontuário Eletrônico do Cidadão (PEC) é mantido exclusivamente no ambiente local da sua unidade, em estrita conformidade com as diretrizes de segurança.</p>
+        </details>
+        
+        <details class="faq-item hidden-element">
+            <summary>Como importo os dados do e-SUS para o Painel?</summary>
+            <p>O processo é simples: basta exportar os relatórios padrão do sistema e-SUS APS e carregá-los diretamente no Painel APS. A ferramenta encarrega-se de mapear as colunas e consolidar os dados automaticamente.</p>
+        </details>
+    </section>
+
+    <!-- SEÇÃO 1: DOWNLOAD PRINCIPAL CENTRALIZADO -->
+    <section class="download-single-section" id="download-section">
+        <div class="download-center-card hidden-element">
+            <div class="main-icon">
+                <span class="material-symbols-rounded">cloud_download</span>
+            </div>
+            <h2>Acesse o Painel APS</h2>
+            <p>
+                A versão atual do sistema é <strong>totalmente gratuita e será sempre gratuita</strong>. 
+                Melhore a gestão clínica e o monitoramento da sua equipe sem custos de licença.
+            </p>
+            
+            <div class="download-center-actions">
+                <a href="#download-link" class="cta-btn">
+                    <span class="material-symbols-rounded">download</span>
+                    Baixar Gratuitamente
+                </a>
+                <a href="#orientacoes" class="btn-outline">
+                    <span class="material-symbols-rounded">menu_book</span>
+                    Orientações de Uso
+                </a>
+            </div>
+
+            <div class="download-features-pills">
+                <span><span class="material-symbols-rounded">check_circle</span> 100% Gratuito</span>
+                <span><span class="material-symbols-rounded">wifi_off</span> Operação Local Offline</span>
+                <span><span class="material-symbols-rounded">memory</span> Leve (~40MB)</span>
+                <span><span class="material-symbols-rounded">security</span> Compatível com Windows</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 2: APOIO E ECOSSISTEMA V.2 -->
+    <section class="support-dedicated-section" id="apoiar">
+        <div class="support-container">
+            <div class="support-header hidden-element">
+                <span class="badge">Evolução Contínua</span>
+                <h2>Apoie o Futuro do Projeto</h2>
+                <p>
+                    O Painel APS é e continuará gratuito. As doações arrecadadas financiam a infraestrutura de desenvolvimento de novos módulos para a <strong>Versão 2.0</strong> e a criação de <strong>aplicativos satélites complementares</strong> para fortalecer a rotina do SUS:
+                </p>
+            </div>
+
+            <!-- Grid de Módulos V2 / Satélites -->
+            <div class="roadmap-grid">
+                <div class="roadmap-card hidden-element">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">vaccines</span></div>
+                        <h3>Imunização & Vacinas</h3>
+                    </div>
+                    <p>Auditoria ágil de esquemas vacinais em atraso e busca ativa estratificada por faixa etária da infância à terceira idade.</p>
+                </div>
+
+                <div class="roadmap-card hidden-element" style="transition-delay: 50ms;">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">notification_important</span></div>
+                        <h3>Alertas Preditivos</h3>
+                    </div>
+                    <p>Monitoramento contínuo para evitar perda de prazos nas janelas ideais de rastreamento (citopatológico e mamografia).</p>
+                </div>
+
+                <div class="roadmap-card hidden-element" style="transition-delay: 100ms;">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">smartphone</span></div>
+                        <h3>App Satélite para ACS</h3>
+                    </div>
+                    <p>Ferramenta móvel leve para checagem da lista nominal de pendências territoriais direto na microárea, com operação 100% offline.</p>
+                </div>
+
+                <div class="roadmap-card hidden-element" style="transition-delay: 150ms;">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">event_note</span></div>
+                        <h3>Meses Coloridos</h3>
+                    </div>
+                    <p>Planejador interativo de atividades coletivas e campanhas temáticas (Outubro Rosa, Novembro Azul), direcionando o público prioritário.</p>
+                </div>
+
+                <div class="roadmap-card hidden-element" style="transition-delay: 200ms;">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">home_health</span></div>
+                        <h3>Atenção Domiciliar</h3>
+                    </div>
+                    <p>Organização de itinerários, estratificação de risco e registro clínico ágil para o cuidado de pacientes acamados e domiciliados.</p>
+                </div>
+
+                <div class="roadmap-card hidden-element" style="transition-delay: 250ms;">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">prescriptions</span></div>
+                        <h3>Receitas Controladas</h3>
+                    </div>
+                    <p>Acompanhamento estruturado de prazos de validade, notificações de receita e fluxo programado de renovações na unidade.</p>
+                </div>
+
+                <div class="roadmap-card hidden-element" style="transition-delay: 300ms;">
+                    <div class="roadmap-card-header">
+                        <div class="icon-box"><span class="material-symbols-rounded">dentistry</span></div>
+                        <h3>Integração Saúde Bucal</h3>
+                    </div>
+                    <p>Cruzamento de pacientes com condições crônicas e gestantes sem primeira consulta odontológica programática registrada.</p>
+                </div>
+            </div>
+
+            <!-- CTA Central de Contribuição -->
+            <div class="support-cta-box hidden-element">
+                <h3>Faça Parte Desta Construção</h3>
+                <p>Se o Painel APS otimizou o trabalho da sua equipe, contribua para acelerar a entrega das novas ferramentas para toda a rede pública.</p>
+                
+                <a href="#pix" class="cta-btn" style="background: var(--secondary); color: var(--dark); box-shadow: 0 10px 25px rgba(0, 210, 255, 0.3);">
+                    <span class="material-symbols-rounded">pix</span>
+                    Contribuir com o Projeto via PIX
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p><strong>Painel APS</strong> &copy; 2026. Criado por profissionais do SUS para profissionais do SUS.</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">
+            Fontes oficiais: 
+            <a href="https://aps.saude.gov.br/" target="_blank">SAPS/MS</a> | 
+            <a href="https://sisaps.saude.gov.br/esus/" target="_blank">e-SUS APS</a>
+        </p>
+    </footer>
+
+    <!-- SCRIPT PARA INTERAÇÃO DO MENU HAMBÚRGUER (DESKTOP & MOBILE) E SCROLL -->
+    <script>
+        const openDrawerBtn = document.getElementById('openDrawerBtn');
+        const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const drawerPanel = document.getElementById('drawerPanel');
+        const drawerLinks = document.querySelectorAll('.drawer-link');
+
+        function openDrawer() {
+            drawerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            drawerOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        openDrawerBtn.addEventListener('click', openDrawer);
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+
+        drawerOverlay.addEventListener('click', (e) => {
+            if (!drawerPanel.contains(e.target)) {
+                closeDrawer();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && drawerOverlay.classList.contains('active')) {
+                closeDrawer();
+            }
+        });
+
+        drawerLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                closeDrawer();
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.style.padding = '0.6rem 2rem';
+            } else {
+                nav.style.padding = '1rem 2rem';
+            }
+        });
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show-element');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.hidden-element').forEach((el) => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
